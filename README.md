@@ -30,11 +30,16 @@ Install harperdb and other dbs to benchmark
 - sqllite is a static binary (so doesn't need to be started), and is installed as a dependency of this repo
 - [Install and Start neo4j](https://neo4j.com/download/)
 
+Run all tests
+
+- `npm start all`
+
 Run individual tests
 
 - `npm start harperdb`
 - `npm start sqllite`
 - `npm start neo4j`
+- `npm start cassandra`
 
 ##
 
