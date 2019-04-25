@@ -1,7 +1,7 @@
 {
   "name": "harperdb-benchmark-test",
   "version": "1.0.0",
-  "description": "",
+  "description": "A suite of scripts designed to benchmark HarperDB against some other popular distributed and/or edge-optimized databases.",
   "scripts": {
     "harperdb": "node ./scripts/harperdb.js",
     "sqllite": "node ./scripts/sqllite.js",
