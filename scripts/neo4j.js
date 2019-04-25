@@ -4,11 +4,11 @@ const record_count = 5000;
 const driver = neo4j.driver('bolt://localhost', neo4j.auth.basic('neo4j', 'password'), { maxConnectionPoolSize: 5000 });
 
 const runTest = async () => {
-  console.time('neo4j');
+  console.time('neo4j time');
   await clearDogs();
   await addDogs();
   await getDogs();
-  console.timeEnd('neo4j');
+  console.timeEnd('neo4j time');
   process.exit();
 };
 
@@ -45,7 +45,7 @@ const getDogs = async () => {
     await session
     .run('MATCH (n:Dog) RETURN count(n) as count')
     .then((result) => {
-      console.log(`neo4j record count ${result.records[0]._fields[0].low}`);
+      console.log(`neo4j records: ${result.records[0]._fields[0].low}`);
       session.close();
     })
     .catch(e => console.log('error', e));

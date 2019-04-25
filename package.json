@@ -5,11 +5,14 @@
   "scripts": {
     "harperdb": "node ./scripts/harperdb.js",
     "sqllite": "node ./scripts/sqllite.js",
-    "neo4j": "node ./scripts/neo4j.js"
+    "neo4j": "node ./scripts/neo4j.js",
+    "cassandra": "node ./scripts/cassandra.js",
+    "all": "npm run harperdb && npm run sqllite && npm run neo4j && npm run cassandra"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cassandra-driver": "^4.1.0",
     "neo4j-driver": "^1.7.3",
     "sqlite3": "^4.0.6",
     "uuid": "^3.3.2"

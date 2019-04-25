@@ -24,10 +24,7 @@ const insert_records = (callback) => {
 	var req = http.request(options, (res) => {
 		res.on('data', () => {
 			if(callbackTimeout) clearTimeout(callbackTimeout);
-      callbackTimeout = setTimeout(() => {
-        console.log('insert records end');
-        callback();
-			}, 0);
+      callbackTimeout = setTimeout(() => callback(), 0);
 		});
 	});
 
@@ -38,47 +35,47 @@ const insert_records = (callback) => {
 
 
 const create_schema = (callback) => {
-  const req = create_request('create schema end', callback);
+  const req = create_request(callback);
 	req.write(JSON.stringify({ operation: 'create_schema', schema: 'dev' }));
 	req.end();
 };
 
 
 const query_records = (callback) => {
-  const req = create_request('query records end', callback);
+  const req = create_request(callback, true);
 	req.write(JSON.stringify({ operation: 'sql', sql: 'select count(id) from dev.dog' }));
 	req.end();
 };
 
 const create_table = (callback) => {
-  const req = create_request('create table end', callback);
+  const req = create_request(callback);
 	req.write(JSON.stringify({ operation: 'create_table', schema: 'dev', table: 'dog', hash_attribute: 'id' }));
 	req.end();
 };
 
 const drop_schema = (callback) => {
-	const req = create_request('end drop schema', callback);
+	const req = create_request(callback);
 	req.write(JSON.stringify({ operation: 'drop_schema', schema: 'dev' }));
 	req.end();
 };
 
-const create_request = (process, callback) => http.request(options, (res) => {
+const create_request = (callback, process = false) => http.request(options, (res) => {
 	var chunks = [];
 	res.on('data', (chunk) => { chunks.push(chunk); });
 
 	res.on('end', () => {
 		var body = Buffer.concat(chunks);
-		console.log(process, body.toString());
+		if (process) console.log(`harperdb records: ${JSON.parse(body)[0]['COUNT(id)']}`);
 		if (callback) callback();
 	});
 });
 
 create_schema(() => {
   create_table(() => {
-    console.time('harperdb');
+    console.time('harperdb time');
     insert_records(() => {
       query_records(() => {
-        console.timeEnd('harperdb');
+        console.timeEnd('harperdb time');
         drop_schema();
       });
     });

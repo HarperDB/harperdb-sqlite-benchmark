@@ -7,7 +7,7 @@ db.serialize(() => {
   db.run('DROP TABLE IF EXISTS dog');
   db.run('CREATE TABLE IF NOT EXISTS dog (id data_type PRIMARY KEY, name data_type, breed data_type, age data_type DEFAULT 0, table_constraint);');
 
-  console.time('sqlite');
+  console.time('sqlite time');
 
   var stmt = db.prepare('INSERT INTO dog(id, name, breed, age) VALUES (?, ?, ?, ?)');
   for(let i = 1; i <= record_count; i++){
@@ -17,8 +17,8 @@ db.serialize(() => {
   stmt.finalize();
 
   db.each('SELECT count(id) as c  FROM dog', (err, row) => {
-     console.log('sqlite record count ' + row.c );
-     console.timeEnd('sqlite');
+     console.log('sqlite records: ' + row.c );
+     console.timeEnd('sqlite time');
   });
 });
 
