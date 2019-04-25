@@ -1,213 +1,87 @@
-const http = require("http"),
-	  uuidv4 = require('uuid/v4');	
+const http = require('http');
+const uuidv4 = require('uuid/v4');
+const record_count = 5000;
 
-let records = [];
-const record_count = 5000; 
+const options = {
+  method: 'POST',
+  host: 'localhost',
+  port: '9925',
+  path: '/',
+  headers: {
+    "Content-Type": 'application/json',
+    Authorization: 'Basic SERCX0FETUlOOnBhc3N3b3Jk'
+  }
+};
 
+const insert_records = (callback) => {
+  const records = [];
+	for(i = 1; i <= record_count; i++) {
+		records.push({ id: uuidv4(), name: 'harper', age: i, breed: 'mutt' });
+	}
 
-create_schema(function(){
-	create_table(function(){
-		console.time("harperdb");
-		insert_records(function(){
-
-			query_records(function(){
-				console.timeEnd("harperdb");
-				drop_schema(function(){
-					
-				});
-				
-			});
+	let callbackTimeout = false;
+	// Set up the request
+	var req = http.request(options, (res) => {
+		res.on('data', () => {
+			if(callbackTimeout) clearTimeout(callbackTimeout);
+      callbackTimeout = setTimeout(() => {
+        console.log('insert records end');
+        callback();
+			}, 0);
 		});
-		
+	});
+
+	// post the data
+	req.write(JSON.stringify({ operation:'insert', schema:'dev', table:'dog', records: records }));
+	req.end();
+};
+
+
+const create_schema = (callback) => {
+  const req = create_request('create schema end', callback);
+	req.write(JSON.stringify({ operation: 'create_schema', schema: 'dev' }));
+	req.end();
+};
+
+
+const query_records = (callback) => {
+  const req = create_request('query records end', callback);
+	req.write(JSON.stringify({ operation: 'sql', sql: 'select count(id) from dev.dog' }));
+	req.end();
+};
+
+const create_table = (callback) => {
+  const req = create_request('create table end', callback);
+	req.write(JSON.stringify({ operation: 'create_table', schema: 'dev', table: 'dog', hash_attribute: 'id' }));
+	req.end();
+};
+
+const drop_schema = (callback) => {
+	const req = create_request('end drop schema', callback);
+	req.write(JSON.stringify({ operation: 'drop_schema', schema: 'dev' }));
+	req.end();
+};
+
+const create_request = (process, callback) => http.request(options, (res) => {
+	var chunks = [];
+	res.on('data', (chunk) => { chunks.push(chunk); });
+
+	res.on('end', () => {
+		var body = Buffer.concat(chunks);
+		console.log(process, body.toString());
+		if (callback) callback();
 	});
 });
 
-
-function insert_records(callback){
-	for(i = 1; i <= record_count; i++) {
-			let record = {};
-			record.id = uuidv4();
-			record.name ="harper";
-			record.age = i;
-			record.breed = "mutt";
-			records.push(record);
-
-		}
-
-		var post_options = {
-			host: 'localhost',
-			port: '9925',
-			path: '/',
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization' : 'Basic SERCX0FETUlOOnBhc3N3b3Jk'
-			}
-		};
-
-		// Set up the request
-		var post_req = http.request(post_options, function(res) {
-			res.setEncoding('utf8');
-			res.on('data', function (chunk) {
-				callback();
-			});
-		});
-
-		let insertObj = {
-			"operation":"insert",
-			"schema":"dev",
-			"table":"dog",
-			"records": records
-
-		}
-
-		// post the data
-	
-
-		post_req.write(JSON.stringify(insertObj));
-		post_req.end();
-	
-
-}
-
-
-function create_schema(callback){
-	
-
-	var create_schema_options = {
-	  "method": "POST",
-	  "host": "localhost",
-	  "port": "9925",
-	   "path": "/",
-	  "headers": {
-		"Content-Type": "application/json",
-		"Authorization": "Basic SERCX0FETUlOOnBhc3N3b3Jk"
-	  }
-	};
-
-	var req = http.request(create_schema_options, function (res) {
-	  var chunks = [];
-
-	  res.on("data", function (chunk) {
-		chunks.push(chunk);
-	  });
-
-	  res.on("end", function () {
-		var body = Buffer.concat(chunks);
-		console.log(body.toString());
-		callback();
-	  });
-	});
-
-
-
-
-	req.write(JSON.stringify({ operation: 'create_schema', schema: 'dev' }));
-	req.end();
-
-}
-
-
-function query_records(callback){
-	var create_table_options = {
-	  "method": "POST",
-	   "host": "localhost",
-	  "port": "9925",
-	   "path": "/",
-	  "headers": {
-		"Content-Type": "application/json",
-		"Authorization": "Basic SERCX0FETUlOOnBhc3N3b3Jk"
-	  }
-	};
-
-	var req = http.request(create_table_options, function (res) {
-	  var chunks = [];
-
-	  res.on("data", function (chunk) {
-		chunks.push(chunk);
-	  });
-
-	  res.on("end", function () {
-		var body = Buffer.concat(chunks);
-		console.log(body.toString());
-		callback();
-	  });
-	});
-
-	req.write(JSON.stringify(
-	  { 
-		operation: 'sql',
-	  	sql: 'select count(id) from dev.dog'
-	  }
-	));
-	req.end();
-
-}
-
-function create_table(callback){
-	var create_table_options = {
-	  "method": "POST",
-	   "host": "localhost",
-	  "port": "9925",
-	   "path": "/",
-	  "headers": {
-		"Content-Type": "application/json",
-		"Authorization": "Basic SERCX0FETUlOOnBhc3N3b3Jk"
-	  }
-	};
-
-	var req = http.request(create_table_options, function (res) {
-	  var chunks = [];
-
-	  res.on("data", function (chunk) {
-		chunks.push(chunk);
-	  });
-
-	  res.on("end", function () {
-		var body = Buffer.concat(chunks);
-		console.log(body.toString());
-		callback();
-	  });
-	});
-
-	req.write(JSON.stringify({ operation: 'create_table',
-	  schema: 'dev',
-	  table: 'dog',
-	  hash_attribute: 'id' }));
-	req.end();
-
-}
-
-function drop_schema(callback){
-	var http = require("http");
-
-	var drop_table_options = {
-	  "method": "POST",
-	   "host": "localhost",
-	  "port": "9925",
-	   "path": "/",
-	  "headers": {
-		"Content-Type": "application/json",
-		"Authorization": "Basic SERCX0FETUlOOnBhc3N3b3Jk"
-	  }
-	};
-
-	var req = http.request(drop_table_options, function (res) {
-	  var chunks = [];
-
-	  res.on("data", function (chunk) {
-		chunks.push(chunk);
-	  });
-
-	  res.on("end", function () {
-		var body = Buffer.concat(chunks);
-		console.log(body.toString());
-        callback();
-	  });
-	});
-
-	req.write(JSON.stringify({ operation: 'drop_schema', schema: 'dev' }));
-	req.end();
-}
-
+create_schema(() => {
+  create_table(() => {
+    console.time('harperdb');
+    insert_records(() => {
+      query_records(() => {
+        console.timeEnd('harperdb');
+        drop_schema();
+      });
+    });
+  });
+});
 

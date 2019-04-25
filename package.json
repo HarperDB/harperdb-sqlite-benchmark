@@ -4,14 +4,13 @@
   "description": "",
   "main": "harperdbtest.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "harperdb": "node harperdbtest.js",
+    "sqllite": "node sqllitetest.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.16.4",
-    "mydb": "^3.2.0",
-    "sqlite3": "^3.1.13",
+    "sqlite3": "^4.0.6",
     "uuid": "^3.3.2"
   }
 }
