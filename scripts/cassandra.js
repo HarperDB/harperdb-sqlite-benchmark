@@ -1,7 +1,9 @@
 const cassandra = require('cassandra-driver');
 const uuidv4 = require('uuid/v4');
 const client = new cassandra.Client({ contactPoints: ['127.0.0.1'], localDataCenter: 'datacenter1', keyspace: 'harperdb' });
-const record_count = 5000;
+const record_count = process.argv[2];
+
+console.log('running cassandra: ', record_count, ' records');
 
 const runTest = async () => {
   console.time('cassandra time');
